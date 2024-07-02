@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h2>Upload an Image</h2>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" id="imageFile"/>
+      <button type="submit">Upload Image</button>
+    </form>
+    <h2>Result</h2>
+    <textarea id="result" readonly></textarea>
+    <script>
+      const form = document.getElementById("uploadForm");
+      const resultTextarea = document.getElementById("result");
+      if (!form) {
+        console.error("Form or result textarea not found.");
+      }
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        resultTextarea.value = "";
+
+        const formData = new FormData();
+        const fileInput = document.getElementById("imageFile");
+        
+        formData.append("image_file",fileInput.files[0]);
+        const requestOptions = {
+          method: "POST",
+          body: formData,
+        };
+        try {
+          const response = await fetch("/predict", requestOptions);
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          const result = await response.json();
+          resultTextarea.value = result.prediction;
+        } catch (error) {
+          console.error("Error : ", error);
+          resultTextarea.value = "Error uploading image.";
+        }
+      });
+    </script>
+  </body>
+</html>
